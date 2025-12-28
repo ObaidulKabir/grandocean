@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import styles from "./AdminBookingPayments.module.css";
 
@@ -19,12 +19,12 @@ export default function AdminBookingPaymentsPage() {
   const [list, setList] = useState<Payment[]>([]);
   const [methods, setMethods] = useState<Record<string, string>>({});
   const [refs, setRefs] = useState<Record<string, string>>({});
-  const load = async () => {
+  const load = useCallback(async () => {
     const res = await fetch(`/api/bookings/${id}/payments`);
     const json = await res.json();
     setList(json.data || []);
-  };
-  useEffect(() => { load(); }, []);
+  }, [id]);
+  useEffect(() => { load(); }, [load]);
   const markPaid = async (pid: string) => {
     await fetch(`/api/payments/${pid}/pay`, {
       method: "POST",

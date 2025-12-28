@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import styles from "./AdminUnitDetail.module.css";
 
@@ -41,22 +41,22 @@ export default function AdminUnitDetailPage() {
   const [total, setTotal] = useState(0);
   const [saveMsg, setSaveMsg] = useState<string>("");
 
-  const loadUnit = async () => {
+  const loadUnit = useCallback(async () => {
     const res = await fetch(`/api/units/${unitId}`);
     const json = await res.json();
     setUnit(json.data);
-  };
-  const loadComponents = async () => {
+  }, [unitId]);
+  const loadComponents = useCallback(async () => {
     const res = await fetch(`/api/units/${unitId}/components`);
     const json = await res.json();
     setComponents(json.data || []);
     setWarn(!!json.warn);
     setTotal(json.total || 0);
-  };
+  }, [unitId]);
   useEffect(() => {
     loadUnit();
     loadComponents();
-  }, []);
+  }, [loadUnit, loadComponents]);
 
   const onUnitChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!unit) return;
@@ -83,7 +83,7 @@ export default function AdminUnitDetailPage() {
 
   const addComponent = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch(`/api/units/${unitId}/components`, {
+    await fetch(`/api/units/${unitId}/components`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

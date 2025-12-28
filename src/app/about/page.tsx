@@ -8,11 +8,10 @@ export default function AboutPage() {
       <div className="container">
         <h1 className="title">A new chapter of oceanfront luxury living</h1>
         <div style={{ marginTop: 12, borderRadius: 12, overflow: "hidden" }}>
-          <img
-            src={"/images/3d%20View.png"}
-            alt="3D project view"
-            style={{ width: "100%", display: "block" }}
-          />
+          <picture>
+            <source srcSet={"/images/3d%20View.png"} type="image/png" />
+            <img src={"/images/3d%20View.png"} alt="3D project view" style={{ width: "100%", display: "block" }} />
+          </picture>
         </div>
         <p className="subtitle" style={{ marginTop: 8 }}>
           Unitech Grand Ocean Resort & Suites has been designed to blend luxury hospitality

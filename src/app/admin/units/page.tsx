@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import styles from "./AdminUnits.module.css";
 import { useUnits } from "@/context/UnitsContext";
 import type { Unit } from "@/context/UnitsContext";
@@ -51,9 +51,7 @@ function AdminUnitsContent() {
       status: "Available",
     });
   };
-  const filtered = useMemo(() => {
-    return units;
-  }, [units]);
+  const filtered = useMemo(() => units, [units]);
   const openEdit = async (u: Unit) => {
     setEditing(u);
     try {
@@ -70,7 +68,7 @@ function AdminUnitsContent() {
   const onSaveEditing = async () => {
     if (!editing) return;
     setEditError("");
-    const ok = await saveEdit(editing as any);
+    const ok = await saveEdit(editing);
     if (ok) {
       setEditing(null);
       await loadUnits(filters);
@@ -183,16 +181,16 @@ function AdminUnitsContent() {
                         {ownershipOptions.map((o) => <option key={o} value={o}>{o}</option>)}
                       </select>
                     </td>
-                    <td>{(u as any).sharesSold || 0}</td>
+                    <td>{u.sharesSold || 0}</td>
                     <td>
-                      <input className={styles.cellInput} type="number" defaultValue={(u as any).maxShares || ""} onBlur={(e) => saveEdit({ ...u, maxShares: Number(e.target.value) })} />
+                      <input className={styles.cellInput} type="number" defaultValue={u.maxShares || ""} onBlur={(e) => saveEdit({ ...u, maxShares: Number(e.target.value) })} />
                     </td>
                     <td>
                       <select defaultValue={u.status} onChange={(e) => updateStatus(u._id!, e.target.value)}>
                         {statusOptions.map((o) => <option key={o} value={o}>{o}</option>)}
                       </select>
                     </td>
-                    <td>{(u as any)._error ? String((u as any)._error) : (u as any)._pending ? "Pending" : ""}</td>
+                    <td>{u._error ? String(u._error) : u._pending ? "Pending" : ""}</td>
                   <td>
                       <a href={`/suites/${u._id}`} className={styles.link}>User View</a>
                       {" | "}
@@ -217,7 +215,7 @@ function AdminUnitsContent() {
                       <input name="unitCode" placeholder="Unit Code" value={editing.unitCode} onChange={onEditChange} required />
                       <input name="floor" type="number" placeholder="Floor" value={editing.floor} onChange={onEditChange} required />
                       <input name="totalAreaSqft" type="number" placeholder="Total Area (sqft)" value={editing.totalAreaSqft} onChange={onEditChange} required />
-                      <input name="maxShares" type="number" placeholder="Max Shares" value={(editing as any).maxShares || 0} onChange={onEditChange} />
+                      <input name="maxShares" type="number" placeholder="Max Shares" value={editing.maxShares || 0} onChange={onEditChange} />
                       <select name="sizeCategory" value={editing.sizeCategory} onChange={onEditChange}>
                         {sizeOptions.map((o) => <option key={o} value={o}>{o}</option>)}
                       </select>
@@ -233,11 +231,11 @@ function AdminUnitsContent() {
                       <select name="status" value={editing.status} onChange={onEditChange}>
                         {statusOptions.map((o) => <option key={o} value={o}>{o}</option>)}
                       </select>
-                      <input name="basePrice" type="number" placeholder="Base Price" value={(editing as any).basePrice || 0} onChange={onEditChange} />
-                      <input name="pricePerSqft" type="number" placeholder="Price per sqft" value={(editing as any).pricePerSqft || 0} onChange={onEditChange} />
-                      <input name="viewMarkupPercent" type="number" placeholder="View Markup %" value={(editing as any).viewMarkupPercent || 0} onChange={onEditChange} />
-                      <input name="qualityMarkupPercent" type="number" placeholder="Quality Markup %" value={(editing as any).qualityMarkupPercent || 0} onChange={onEditChange} />
-                      <input name="floorMarkupPercent" type="number" placeholder="Floor Markup %" value={(editing as any).floorMarkupPercent || 0} onChange={onEditChange} />
+                      <input name="basePrice" type="number" placeholder="Base Price" value={(editing as Unit).basePrice || 0} onChange={onEditChange} />
+                      <input name="pricePerSqft" type="number" placeholder="Price per sqft" value={(editing as Unit).pricePerSqft || 0} onChange={onEditChange} />
+                      <input name="viewMarkupPercent" type="number" placeholder="View Markup %" value={(editing as Unit).viewMarkupPercent || 0} onChange={onEditChange} />
+                      <input name="qualityMarkupPercent" type="number" placeholder="Quality Markup %" value={(editing as Unit).qualityMarkupPercent || 0} onChange={onEditChange} />
+                      <input name="floorMarkupPercent" type="number" placeholder="Floor Markup %" value={(editing as Unit).floorMarkupPercent || 0} onChange={onEditChange} />
                     </form>
                   </div>
                   <div className={styles.modalActions}>

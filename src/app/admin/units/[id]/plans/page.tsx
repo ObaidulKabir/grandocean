@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import styles from "./AdminPlans.module.css";
 
@@ -30,7 +30,14 @@ export default function AdminUnitPlansPage() {
   const { id: unitId } = useParams<{ id: string }>();
   const [unit, setUnit] = useState<Unit | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [form, setForm] = useState<any>({
+  const [form, setForm] = useState<{
+    ownershipType: "Full" | "TimeShare";
+    paymentMode: "OneTime" | "Installment";
+    bookingPercent: number;
+    downpaymentPercent: number;
+    installmentFrequency: "Monthly" | "Quarterly";
+    tenureYears: number;
+  }>({
     ownershipType: "Full",
     paymentMode: "OneTime",
     bookingPercent: 10,
@@ -38,19 +45,27 @@ export default function AdminUnitPlansPage() {
     installmentFrequency: "Monthly",
     tenureYears: 1,
   });
-  const [preview, setPreview] = useState<any>(null);
+  const [preview, setPreview] = useState<{
+    totalPrice: number;
+    bookingAmount: number;
+    downpaymentAmount: number;
+    installmentAmount: number;
+    numberOfInstallments: number;
+    installmentStartDate?: string;
+    schedule?: Array<{ dueDate: string; amount: number }>;
+  } | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const ures = await fetch(`/api/units/${unitId}`);
     const ujson = await ures.json();
     setUnit(ujson.data);
     const pres = await fetch(`/api/payment-plans?unitId=${unitId}`);
     const pjson = await pres.json();
     setPlans(pjson.data || []);
-  };
+  }, [unitId]);
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const val = e.target.type === "number" ? Number(e.target.value) : e.target.value;

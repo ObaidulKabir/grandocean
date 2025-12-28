@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "./AdminBookings.module.css";
 
 type Booking = {
@@ -14,15 +14,15 @@ type Booking = {
 export default function AdminBookingsPage() {
   const [status, setStatus] = useState<string>("");
   const [list, setList] = useState<Booking[]>([]);
-  const load = async () => {
+  const load = useCallback(async () => {
     const qs = status ? `?status=${status}` : "";
     const res = await fetch(`/api/bookings${qs}`);
     const json = await res.json();
     setList(json.data || []);
-  };
+  }, [status]);
   useEffect(() => {
     load();
-  }, [status]);
+  }, [load]);
   return (
     <section className={styles.section}>
       <div className={styles.container}>

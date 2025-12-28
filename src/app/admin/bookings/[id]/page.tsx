@@ -1,19 +1,24 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "./AdminBookingDetail.module.css";
 import { useParams } from "next/navigation";
 
 export default function AdminBookingDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [data, setData] = useState<any>(null);
+  type BookingDetail = {
+    data?: { bookingCode?: string; bookingStatus?: string; ownershipType?: string };
+    customer?: { name?: string; phone?: string; email?: string; nationalIdOrPassport?: string };
+    unit?: { unitCode?: string; finalPrice?: number; timeSharePrice?: number };
+  } | null;
+  const [data, setData] = useState<BookingDetail>(null);
   const [status, setStatus] = useState<string>("");
-  const load = async () => {
+  const load = useCallback(async () => {
     const res = await fetch(`/api/bookings/${id}`);
     const json = await res.json();
     setData(json);
     setStatus(json.data?.bookingStatus || "");
-  };
-  useEffect(() => { load(); }, []);
+  }, [id]);
+  useEffect(() => { load(); }, [load]);
   const saveStatus = async () => {
     await fetch(`/api/bookings/${id}/status`, {
       method: "PATCH",

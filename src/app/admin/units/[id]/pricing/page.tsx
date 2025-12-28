@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import styles from "./AdminPricing.module.css";
 
@@ -20,18 +20,25 @@ type Unit = {
 export default function AdminPricingPage() {
   const { id: unitId } = useParams<{ id: string }>();
   const [unit, setUnit] = useState<Unit | null>(null);
-  const [form, setForm] = useState<any>({});
+  type UnitPricing = Partial<Unit> & {
+    basePrice?: number;
+    pricePerSqft?: number;
+    viewMarkupPercent?: number;
+    qualityMarkupPercent?: number;
+    floorMarkupPercent?: number;
+  };
+  const [form, setForm] = useState<UnitPricing>({});
   const [promoOn, setPromoOn] = useState(false);
   const [promoPercent, setPromoPercent] = useState(0);
-  const load = async () => {
+  const load = useCallback(async () => {
     const res = await fetch(`/api/units/${unitId}`);
     const json = await res.json();
     setUnit(json.data);
     setForm(json.data || {});
-  };
+  }, [unitId]);
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;
     const val = e.target.type === "number" ? Number(e.target.value) : e.target.value;
