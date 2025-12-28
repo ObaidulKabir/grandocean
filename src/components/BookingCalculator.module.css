@@ -1,0 +1,42 @@
+.card {
+  border: 1px solid rgba(11,60,93,0.15);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+  margin-top: 12px;
+}
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+}
+.submit {
+  background: var(--blue);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+.table th, .table td {
+  text-align: left;
+  border-bottom: 1px solid rgba(11,60,93,0.08);
+  padding: 8px;
+}
+.warn {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+@media (max-width: 640px) {
+  .form {
+    grid-template-columns: 1fr 1fr;
+  }
+}

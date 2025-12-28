@@ -1,0 +1,1 @@
+mongosh "mongodb+srv://cluster0.vgxrk2h.mongodb.net/" --apiVersion 1 --username prospectbd_db_user --password cRsPaiYVvN0P8979

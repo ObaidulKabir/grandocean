@@ -1,0 +1,41 @@
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.submit {
+  background: var(--blue);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.card {
+  border: 1px solid rgba(11,60,93,0.15);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+  display: grid;
+  gap: 6px;
+}
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+}
+.badge {
+  background: rgba(11,60,93,0.1);
+  color: var(--blue);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
