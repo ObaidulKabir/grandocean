@@ -6,9 +6,12 @@ import TimeShare from "@/models/TimeShare";
 import { computeFinalPrice, computeTimeSharePrice } from "@/lib/pricing";
 
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await connectToDatabase();
     const unit = await Unit.findById(id).lean();
     if (!unit) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
@@ -18,9 +21,12 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await req.json();
     await connectToDatabase();
     const finalPrice = computeFinalPrice(body);
@@ -44,9 +50,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await req.json();
     await connectToDatabase();
     const finalPrice = computeFinalPrice(body);
@@ -70,9 +79,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  _: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await connectToDatabase();
     const tsCount = await TimeShare.countDocuments({ unitId: id });
     if (tsCount > 0) {

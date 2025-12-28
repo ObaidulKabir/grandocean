@@ -11,9 +11,12 @@ async function generateShareCode() {
   return code;
 }
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await connectToDatabase();
     const unit = await Unit.findById(id).lean();
     if (!unit) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
@@ -26,9 +29,12 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await req.json();
     await connectToDatabase();
     const unit = await Unit.findById(id);

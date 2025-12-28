@@ -8,9 +8,12 @@ function normalize(d: string) {
   return `${m[1]}-${m[2]}-${m[3]}`;
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await req.json();
     const dates: string[] = Array.isArray(body?.dates) ? body.dates : [];
     await connectToDatabase();

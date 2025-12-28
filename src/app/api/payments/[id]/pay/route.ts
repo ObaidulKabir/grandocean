@@ -4,9 +4,12 @@ import Payment from "@/models/Payment";
 import Booking from "@/models/Booking";
 import Unit from "@/models/Unit";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await req.json();
     const { method = "Bank", referenceNo } = body || {};
     await connectToDatabase();

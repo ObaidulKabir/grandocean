@@ -13,9 +13,12 @@ async function recalc(unitId: string) {
   return sum;
 }
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await connectToDatabase();
     const list = await SuiteComponent.find({ unitId: id }).sort({ componentName: 1 }).lean();
     const unit = await Unit.findById(id).lean();
@@ -27,9 +30,12 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await req.json();
     const { componentName, areaSqft, remarks } = body || {};
     if (!componentName || !areaSqft || Number(areaSqft) <= 0) {

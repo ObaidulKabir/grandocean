@@ -5,9 +5,12 @@ import Unit from "@/models/Unit";
 import Customer from "@/models/Customer";
 import PaymentPlan from "@/models/PaymentPlan";
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await connectToDatabase();
     const booking = await Booking.findById(id).lean();
     if (!booking) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });

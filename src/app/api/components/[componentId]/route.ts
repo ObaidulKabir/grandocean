@@ -14,9 +14,12 @@ async function recalc(unitId: string) {
   return sum;
 }
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ componentId: string }> }) {
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ componentId: string }> }
+) {
   try {
-    const { componentId } = await params;
+    const { componentId } = await context.params;
     const body = await req.json();
     const { componentName, areaSqft, remarks } = body || {};
     if (!componentName || !areaSqft || Number(areaSqft) <= 0) {
@@ -41,9 +44,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ comp
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: Promise<{ componentId: string }> }) {
+export async function DELETE(
+  _: NextRequest,
+  context: { params: Promise<{ componentId: string }> }
+) {
   try {
-    const { componentId } = await params;
+    const { componentId } = await context.params;
     await connectToDatabase();
     const existing = await SuiteComponent.findById(componentId);
     if (!existing) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });

@@ -3,9 +3,12 @@ import { connectToDatabase } from "@/lib/db";
 import Booking from "@/models/Booking";
 import Unit from "@/models/Unit";
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await req.json();
     const { bookingStatus } = body || {};
     await connectToDatabase();

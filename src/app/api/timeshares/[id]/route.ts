@@ -3,9 +3,12 @@ import { connectToDatabase } from "@/lib/db";
 import TimeShare from "@/models/TimeShare";
 import Unit from "@/models/Unit";
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await req.json();
     await connectToDatabase();
     const existing = await TimeShare.findById(id);
@@ -40,9 +43,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  _: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     await connectToDatabase();
     const existing = await TimeShare.findById(id);
     if (!existing) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
