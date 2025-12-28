@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import Unit from "@/models/Unit";
 import SuiteComponent from "@/models/SuiteComponent";
 import TimeShare from "@/models/TimeShare";
+import { getConfig } from "@/lib/config";
 
 function computeFinalPrice(input: any) {
   const base = Number(input?.basePrice) || 0;
@@ -19,6 +20,10 @@ function computeFinalPrice(input: any) {
 
 export async function POST(_: NextRequest) {
   try {
+    const { env } = getConfig();
+    if (env === "production" || env === "staging") {
+      return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+    }
     await connectToDatabase();
     const samples = [
       {

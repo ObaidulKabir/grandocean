@@ -4,20 +4,6 @@ import styles from "./AdminUnits.module.css";
 import { useUnits } from "@/context/UnitsContext";
 import type { Unit } from "@/context/UnitsContext";
 
-type Unit = {
-  _id?: string;
-  unitCode: string;
-  floor: number;
-  totalAreaSqft: number;
-  maxShares?: number;
-  sharesSold?: number;
-  sizeCategory: string;
-  quality: string;
-  viewType: string;
-  ownershipAllowed: string;
-  status: string;
-};
-
 const sizeOptions = ["Studio", "1BR", "2BR", "3BR"];
 const qualityOptions = ["Premium", "Regular"];
 const viewOptions = ["Sea View", "Hill View", "Other"];

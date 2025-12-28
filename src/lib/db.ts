@@ -27,14 +27,16 @@ export async function connectToDatabase() {
       .connect(mongodbUri, getDbOptions())
       .catch(async (err) => {
         const env = (process.env.APP_ENV || process.env.NODE_ENV || "development").toLowerCase();
-        console.warn(`Primary DB connection failed: ${err?.message || err}`);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.warn(`Primary DB connection failed: ${errMsg}`);
         if (env === "development" || env === "test") {
           const fallbackUri = "mongodb://localhost:27017/unitech_grand_ocean";
           console.warn(`Attempting local fallback: ${fallbackUri}`);
           try {
             return await mongoose.connect(fallbackUri, getDbOptions());
           } catch (localErr) {
-            console.warn(`Local fallback failed: ${localErr?.message || localErr}`);
+            const errMsg = localErr instanceof Error ? localErr.message : String(localErr);
+            console.warn(`Local fallback failed: ${errMsg}`);
             try {
               const { MongoMemoryServer } = await import("mongodb-memory-server");
               const mongod = await MongoMemoryServer.create();
@@ -42,7 +44,8 @@ export async function connectToDatabase() {
               console.warn(`Using in-memory MongoDB: ${memUri}`);
               return await mongoose.connect(memUri, getDbOptions());
             } catch (memErr) {
-              console.warn(`In-memory fallback failed: ${memErr?.message || memErr}`);
+              const memErrMsg = memErr instanceof Error ? memErr.message : String(memErr);
+              console.warn(`In-memory fallback failed: ${memErrMsg}`);
             }
           }
         }
