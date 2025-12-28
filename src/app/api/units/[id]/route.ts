@@ -6,10 +6,11 @@ import TimeShare from "@/models/TimeShare";
 import { computeFinalPrice, computeTimeSharePrice } from "@/lib/pricing";
 
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     await connectToDatabase();
-    const unit = await Unit.findById(params.id).lean();
+    const unit = await Unit.findById(id).lean();
     if (!unit) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     return NextResponse.json({ ok: true, data: unit });
   } catch {
@@ -17,13 +18,14 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     await connectToDatabase();
     const finalPrice = computeFinalPrice(body);
     const timeSharePrice = computeTimeSharePrice(finalPrice, Number(body?.maxShares) || 0);
-    const updated = await Unit.findByIdAndUpdate(params.id, { ...body, finalPrice, timeSharePrice }, { new: true, runValidators: true });
+    const updated = await Unit.findByIdAndUpdate(id, { ...body, finalPrice, timeSharePrice }, { new: true, runValidators: true });
     if (!updated) {
       return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     }
@@ -42,13 +44,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     await connectToDatabase();
     const finalPrice = computeFinalPrice(body);
     const timeSharePrice = computeTimeSharePrice(finalPrice, Number(body?.maxShares) || 0);
-    const updated = await Unit.findByIdAndUpdate(params.id, { ...body, finalPrice, timeSharePrice }, { new: true, runValidators: true });
+    const updated = await Unit.findByIdAndUpdate(id, { ...body, finalPrice, timeSharePrice }, { new: true, runValidators: true });
     if (!updated) {
       return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     }
@@ -67,15 +70,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     await connectToDatabase();
-    const tsCount = await TimeShare.countDocuments({ unitId: params.id });
+    const tsCount = await TimeShare.countDocuments({ unitId: id });
     if (tsCount > 0) {
       return NextResponse.json({ ok: false, error: "Cannot delete unit with existing timeshares" }, { status: 409 });
     }
-    await Unit.findByIdAndDelete(params.id);
-    await SuiteComponent.deleteMany({ unitId: params.id });
+    await Unit.findByIdAndDelete(id);
+    await SuiteComponent.deleteMany({ unitId: id });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });

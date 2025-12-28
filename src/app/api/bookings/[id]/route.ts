@@ -5,10 +5,11 @@ import Unit from "@/models/Unit";
 import Customer from "@/models/Customer";
 import PaymentPlan from "@/models/PaymentPlan";
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     await connectToDatabase();
-    const booking = await Booking.findById(params.id).lean();
+    const booking = await Booking.findById(id).lean();
     if (!booking) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     const unit = await Unit.findById(booking.unitId).lean();
     const customer = await Customer.findById(booking.customerId).lean();

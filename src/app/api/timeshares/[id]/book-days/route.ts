@@ -8,12 +8,13 @@ function normalize(d: string) {
   return `${m[1]}-${m[2]}-${m[3]}`;
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const dates: string[] = Array.isArray(body?.dates) ? body.dates : [];
     await connectToDatabase();
-    const ts = await TimeShare.findById(params.id);
+    const ts = await TimeShare.findById(id);
     if (!ts) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     const incoming = dates.map(normalize).filter((x) => !!x) as string[];
     if (!incoming.length) return NextResponse.json({ ok: false, error: "No valid dates provided" }, { status: 400 });

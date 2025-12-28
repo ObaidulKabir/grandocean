@@ -4,10 +4,11 @@ import Booking from "@/models/Booking";
 import PaymentPlan from "@/models/PaymentPlan";
 import Payment from "@/models/Payment";
 
-export async function POST(_: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     await connectToDatabase();
-    const booking = await Booking.findById(params.id).lean();
+    const booking = await Booking.findById(id).lean();
     if (!booking) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     const plan = await PaymentPlan.findById(booking.paymentPlanId).lean();
     if (!plan) return NextResponse.json({ ok: false, error: "Plan not found" }, { status: 404 });

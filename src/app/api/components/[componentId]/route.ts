@@ -14,15 +14,16 @@ async function recalc(unitId: string) {
   return sum;
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { componentId: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ componentId: string }> }) {
   try {
+    const { componentId } = await params;
     const body = await req.json();
     const { componentName, areaSqft, remarks } = body || {};
     if (!componentName || !areaSqft || Number(areaSqft) <= 0) {
       return NextResponse.json({ ok: false, error: "Invalid data" }, { status: 400 });
     }
     await connectToDatabase();
-    const existing = await SuiteComponent.findById(params.componentId);
+    const existing = await SuiteComponent.findById(componentId);
     if (!existing) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     existing.componentName = componentName;
     existing.areaSqft = Number(areaSqft);
@@ -40,13 +41,14 @@ export async function PUT(req: NextRequest, { params }: { params: { componentId:
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { componentId: string } }) {
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ componentId: string }> }) {
   try {
+    const { componentId } = await params;
     await connectToDatabase();
-    const existing = await SuiteComponent.findById(params.componentId);
+    const existing = await SuiteComponent.findById(componentId);
     if (!existing) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     const unitId = String(existing.unitId);
-    await SuiteComponent.findByIdAndDelete(params.componentId);
+    await SuiteComponent.findByIdAndDelete(componentId);
     const total = await recalc(unitId);
     const unit = await Unit.findById(unitId).lean();
     const warn = unit ? total > unit.totalAreaSqft : false;

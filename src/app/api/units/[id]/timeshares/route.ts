@@ -11,12 +11,13 @@ async function generateShareCode() {
   return code;
 }
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     await connectToDatabase();
-    const unit = await Unit.findById(params.id).lean();
+    const unit = await Unit.findById(id).lean();
     if (!unit) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
-    const list = await TimeShare.find({ unitId: params.id }).sort({ createdAt: -1 }).lean();
+    const list = await TimeShare.find({ unitId: id }).sort({ createdAt: -1 }).lean();
     const soldCount = list.filter((t: any) => t.status === "Sold").length;
     const bookedDays = list.reduce((a: number, t: any) => a + (t.bookingCalendar?.length || 0), 0);
     return NextResponse.json({ ok: true, data: list, unit: unit, soldCount, bookedDays });
@@ -25,11 +26,12 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     await connectToDatabase();
-    const unit = await Unit.findById(params.id);
+    const unit = await Unit.findById(id);
     if (!unit) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     if (unit.ownershipAllowed !== "TimeShare" && unit.ownershipAllowed !== "Both") {
       return NextResponse.json({ ok: false, error: "TimeShare not allowed for this unit" }, { status: 400 });
@@ -46,7 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       await unit.save();
     }
     const created = await TimeShare.create({
-      unitId: params.id,
+      unitId: id,
       ownerName: body?.ownerName,
       ownerContact: body?.ownerContact,
       shareCode,

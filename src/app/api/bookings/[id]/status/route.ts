@@ -3,12 +3,13 @@ import { connectToDatabase } from "@/lib/db";
 import Booking from "@/models/Booking";
 import Unit from "@/models/Unit";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const { bookingStatus } = body || {};
     await connectToDatabase();
-    const booking = await Booking.findById(params.id);
+    const booking = await Booking.findById(id);
     if (!booking) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     const unit = await Unit.findById(booking.unitId);
     if (!unit) return NextResponse.json({ ok: false, error: "Unit not found" }, { status: 404 });

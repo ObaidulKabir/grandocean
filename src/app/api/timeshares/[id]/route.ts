@@ -3,11 +3,12 @@ import { connectToDatabase } from "@/lib/db";
 import TimeShare from "@/models/TimeShare";
 import Unit from "@/models/Unit";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     await connectToDatabase();
-    const existing = await TimeShare.findById(params.id);
+    const existing = await TimeShare.findById(id);
     if (!existing) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     const unit = await Unit.findById(existing.unitId);
     if (!unit) return NextResponse.json({ ok: false, error: "Unit not found" }, { status: 404 });
@@ -39,10 +40,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     await connectToDatabase();
-    const existing = await TimeShare.findById(params.id);
+    const existing = await TimeShare.findById(id);
     if (!existing) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     const unit = await Unit.findById(existing.unitId);
     if (unit && existing.status === "Sold") {
@@ -50,7 +52,7 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
       unit.sharesSold = sold > 0 ? sold - 1 : 0;
       await unit.save();
     }
-    await TimeShare.findByIdAndDelete(params.id);
+    await TimeShare.findByIdAndDelete(id);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });

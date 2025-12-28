@@ -4,12 +4,13 @@ import Payment from "@/models/Payment";
 import Booking from "@/models/Booking";
 import Unit from "@/models/Unit";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const { method = "Bank", referenceNo } = body || {};
     await connectToDatabase();
-    const payment = await Payment.findById(params.id);
+    const payment = await Payment.findById(id);
     if (!payment) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
     payment.method = method;
     if (referenceNo) payment.referenceNo = referenceNo;

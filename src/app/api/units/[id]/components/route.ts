@@ -13,11 +13,12 @@ async function recalc(unitId: string) {
   return sum;
 }
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     await connectToDatabase();
-    const list = await SuiteComponent.find({ unitId: params.id }).sort({ componentName: 1 }).lean();
-    const unit = await Unit.findById(params.id).lean();
+    const list = await SuiteComponent.find({ unitId: id }).sort({ componentName: 1 }).lean();
+    const unit = await Unit.findById(id).lean();
     const total = list.reduce((a, b) => a + (b.areaSqft || 0), 0);
     const warn = unit ? total > unit.totalAreaSqft : false;
     return NextResponse.json({ ok: true, data: list, total, unitArea: unit?.totalAreaSqft, warn });
@@ -26,8 +27,9 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const { componentName, areaSqft, remarks } = body || {};
     if (!componentName || !areaSqft || Number(areaSqft) <= 0) {
@@ -35,13 +37,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
     await connectToDatabase();
     const created = await SuiteComponent.create({
-      unitId: params.id,
+      unitId: id,
       componentName,
       areaSqft: Number(areaSqft),
       remarks,
     });
-    const total = await recalc(params.id);
-    const unit = await Unit.findById(params.id).lean();
+    const total = await recalc(id);
+    const unit = await Unit.findById(id).lean();
     const warn = unit ? total > unit.totalAreaSqft : false;
     return NextResponse.json({ ok: true, data: created, total, unitArea: unit?.totalAreaSqft, warn }, { status: 201 });
   } catch (e: any) {
